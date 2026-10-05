@@ -22,6 +22,8 @@
 /* Local soundfont controls share the inspector's light/dark theme. */
 .soundfont-settings{margin-top:22px;padding-top:18px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:9px;min-width:0}.soundfont-settings .sidebar-title{margin-bottom:2px}.soundfont-settings>button{width:100%;white-space:normal;height:auto;min-height:30px;padding:5px 8px;font-size:12px}.soundfont-settings>label{font-size:12px;color:var(--muted)}.soundfont-settings>select{width:100%;min-width:0;font-size:12px}.soundfont-settings #soundfontStatus{margin:0;font-size:12px;overflow-wrap:anywhere;color:var(--text);line-height:1.5}.soundfont-settings .track-hint{margin:3px 0 0}.soundfont-settings[aria-busy=true] #soundfontStatus{color:var(--accent)}
 
+.clipboard-buttons{display:flex;gap:4px;flex-shrink:0}.layout-bar{flex-wrap:wrap;height:auto;min-height:38px}.automation-tools button[data-auto=select]{padding:0 6px}
+
 </style>
 </head>
 <body>
@@ -51,7 +53,7 @@
   </section>
   <div class="layout-bar" id="layoutBar" aria-label="Workspace layout">
     <div class="bar-toggles"><button id="toggleTop" class="small" aria-expanded="true" aria-controls="topbar transport" title="Collapse top bars">Top bar</button><button id="toggleLeft" class="small" aria-expanded="true" aria-controls="trackSidebar" title="Collapse track bar">Tracks</button><button id="toggleRight" class="small" aria-expanded="true" aria-controls="optionsSidebar" title="Collapse options bar">Options</button></div>
-    <span class="layout-hint">Alt + scroll: vertical zoom</span>
+    <div class="clipboard-buttons"><button id="copyBtn" class="small" title="Copy selection (Ctrl/Cmd+C)">Copy</button><button id="pasteBtn" class="small" title="Paste at playback cursor (Ctrl/Cmd+V)">Paste</button></div><span class="layout-hint">Alt + scroll: vertical zoom</span>
     <label class="focus-picker">View <select id="focusView" aria-label="Fullscreen editor view"><option value="split">Split view</option><option value="roll">Piano roll fullscreen</option><option value="velocity">Velocity fullscreen</option><option value="pedal">Sustain fullscreen</option><option value="tempo">Tempo fullscreen</option></select></label><button id="restoreView" class="small" hidden>Exit fullscreen <kbd>Esc</kbd></button>
   </div>
   <section class="workspace" id="workspace">
@@ -72,7 +74,7 @@
       <div class="ruler-row" id="rulerRow"><div class="ruler-label">BAR / BEAT</div><canvas id="ruler" role="img" aria-label="Timeline; click to set playback position, Shift-click to set start, Alt-click to set end"></canvas></div>
       <div class="roll-area" id="rollArea"><canvas id="keys" aria-label="Piano keyboard; click to audition a pitch"></canvas><canvas id="roll" tabindex="0" aria-label="Piano roll. Draw notes with D, select and drag with V, erase with E; Delete removes selected notes."></canvas><div id="emptyHint" hidden>Choose Draw and click the grid to write your first note.</div></div>
       <div id="laneResize" class="lane-resizer" role="separator" tabindex="0" aria-label="Resize piano roll and automation panels" aria-orientation="horizontal" aria-valuemin="80" aria-valuemax="600" aria-valuenow="134" title="Drag to resize the panels"><span></span></div>
-      <div class="automation-head" id="automationHead"><div class="lane-tabs" role="tablist" aria-label="Automation lane"><button data-lane="velocity" class="active" role="tab" aria-selected="true">Velocity</button><button data-lane="pedal" role="tab" aria-selected="false">Sustain pedal</button><button data-lane="tempo" role="tab" aria-selected="false">Tempo</button></div><div class="automation-tools"><button data-auto="draw" class="active" aria-pressed="true">Draw</button><button data-auto="line" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="m4 20 16-16"/><circle cx="4" cy="20" r="1"/><circle cx="20" cy="4" r="1"/></svg>Line</button><div id="tempoScale" hidden><input id="tempoMin" type="number" min="10" max="599" value="40" aria-label="Tempo lane minimum BPM"><span>–</span><input id="tempoMax" type="number" min="11" max="600" value="200" aria-label="Tempo lane maximum BPM"><span>BPM</span></div><button id="laneFullscreen" class="icon" aria-label="Fullscreen automation lane" title="Fullscreen this automation lane"><svg viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg></button></div></div>
+      <div class="automation-head" id="automationHead"><div class="lane-tabs" role="tablist" aria-label="Automation lane"><button data-lane="velocity" class="active" role="tab" aria-selected="true">Velocity</button><button data-lane="pedal" role="tab" aria-selected="false">Sustain pedal · score</button><button data-lane="tempo" role="tab" aria-selected="false">Tempo</button></div><div class="automation-tools"><button data-auto="select" aria-pressed="false" title="Select an automation time range; Shift-drag also selects">Select</button><button data-auto="draw" class="active" aria-pressed="true">Draw</button><button data-auto="line" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="m4 20 16-16"/><circle cx="4" cy="20" r="1"/><circle cx="20" cy="4" r="1"/></svg>Line</button><div id="tempoScale" hidden><input id="tempoMin" type="number" min="10" max="599" value="40" aria-label="Tempo lane minimum BPM"><span>–</span><input id="tempoMax" type="number" min="11" max="600" value="200" aria-label="Tempo lane maximum BPM"><span>BPM</span></div><button id="laneFullscreen" class="icon" aria-label="Fullscreen automation lane" title="Fullscreen this automation lane"><svg viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg></button></div></div>
       <div class="lane-row" id="laneRow"><canvas id="laneLabels" aria-hidden="true"></canvas><canvas id="lane" tabindex="0" aria-label="Automation editor; draw values or a straight line. Right-click deletes automation points."></canvas></div>
       <div class="range-bar" id="velocityRange"><span class="range-title">Velocity range</span><label>From beat <input id="rangeFrom" type="number" min="1" value="1" step="0.25"></label><label>to <input id="rangeTo" type="number" min="1.25" value="17" step="0.25"></label><label>Amount <input id="velocityDelta" type="number" min="1" max="126" value="10"></label><button id="subtractVelocity">− Subtract</button><button id="addVelocity">+ Add</button><span class="range-hint" id="rangeHint">Active track · all notes in range</span></div>
       <div class="range-bar" id="otherLaneHelp" hidden><span id="laneHelp">Drag across a range to hold the pedal. Right-click a point to delete it.</span><button id="clearLane" class="small">Clear this lane</button></div>
@@ -82,7 +84,7 @@
     <aside class="inspector" id="optionsSidebar">
       <div class="sidebar-title">OPTIONS</div>
       <div class="track-settings"><label>Write to <select id="writeTrack" aria-label="Destination track for new notes"></select></label><label>Note channel <select id="channelSelect" aria-label="Channel for new notes"></select></label><label>New note velocity <input id="defaultVelocity" type="number" min="1" max="127" value="88"></label><label>Note length <select id="noteLength"><option value="0.25">1/16 note</option><option value="0.5">1/8 note</option><option value="1" selected>1/4 note</option><option value="2">1/2 note</option><option value="4">Whole note</option></select></label></div>
-      <p class="track-hint">New notes go to this track. Moving, resizing, deleting and automation affect all checked tracks.</p>
+      <p class="track-hint">New notes go to this track. Moving, resizing, deleting and velocity edits affect checked tracks. Sustain and tempo apply to the entire score.</p>
       <section class="soundfont-settings" aria-label="Soundfont playback">
         <div class="sidebar-title">SOUNDFONT</div>
         <button id="soundfontBtn" class="small">Load .sf2 / .sf3</button>
@@ -99,7 +101,7 @@
   <footer class="statusbar"><span id="status">Select to move · draw to write · drag a note’s right edge to resize</span><span><span id="noteCount">42 notes</span><span class="status-separator">/</span><button id="helpBtn" class="text-btn">Shortcuts <kbd>?</kbd></button></span></footer>
 </main>
 <div id="toast" role="status" aria-live="polite"></div>
-<dialog id="helpDialog"><div class="dialog-head"><h2>A few quick controls</h2><button id="closeHelp" class="icon" aria-label="Close help">✕</button></div><div class="shortcut-list"><span>Play / pause</span><kbd>Space</kbd><span>Stop / return to start</span><kbd>Enter</kbd><span>Select · Draw · Erase</span><kbd>V · D · E</kbd><span>Add to selection</span><kbd>Shift / Ctrl + click</kbd><span>Select all in checked tracks</span><kbd>Ctrl / Cmd + A</kbd><span>Delete selected notes</span><kbd>Delete / Backspace</kbd><span>Undo / redo</span><kbd>Ctrl / Cmd + Z / Shift + Z</kbd><span>Move selected notes</span><kbd>Arrow keys</kbd><span>Scroll time / pitches</span><kbd>Shift + wheel / wheel</kbd><span>Zoom vertically / resize lane</span><kbd>Alt + wheel</kbd><span>Zoom at cursor</span><kbd>Ctrl / Cmd + wheel</kbd><span>Set playback start / end</span><kbd>Shift / Alt + ruler click</kbd></div><p>With Draw, drag an empty space to set the note length. Existing notes can still be moved. In automation, Draw paints values and Line creates a straight ramp. Velocity edits affect selected notes when there is a selection, otherwise all notes in the checked tracks. Pedal and tempo changes use normal MIDI events. Beat inputs use quarter-note beats, starting at 1. Check multiple tracks to edit them together, and choose Write to for new notes. Drag the dividers to resize panels. Alt + scroll zooms pitches over the piano roll and resizes the automation panel over its lane. Use View or the corner fullscreen buttons to expand a panel; Escape restores the split view.</p><p>Place yamaha.sf2 beside index.html to load it automatically on first playback or keyboard audition. Serve the folder over localhost or HTTPS; browsers usually block automatic access to neighboring files when opening HTML directly. In Options → Soundfont, you can also select any .sf2 or .sf3 file manually. MIDI instruments follows each channel’s program and bank changes; choosing a preset uses it for all channels. You can also drop a soundfont onto the editor or return to the built-in synth.</p><p class="muted">The chosen soundfont and preview instrument stay separate from the MIDI file. Exports retain the original instrument and other MIDI events. Standard MIDI format 0 and 1 with musical tick timing are supported.</p></dialog>
+<dialog id="helpDialog"><div class="dialog-head"><h2>A few quick controls</h2><button id="closeHelp" class="icon" aria-label="Close help">✕</button></div><div class="shortcut-list"><span>Play / pause</span><kbd>Space</kbd><span>Stop / return to start</span><kbd>Enter</kbd><span>Select · Draw · Erase</span><kbd>V · D · E</kbd><span>Add to selection</span><kbd>Shift / Ctrl + click</kbd><span>Select all in checked tracks</span><kbd>Ctrl / Cmd + A</kbd><span>Delete selected notes</span><kbd>Delete / Backspace</kbd><span>Copy / paste at cursor</span><kbd>Ctrl / Cmd + C / V</kbd><span>Select automation range</span><kbd>Select tool / Shift + drag</kbd><span>Undo / redo</span><kbd>Ctrl / Cmd + Z / Shift + Z</kbd><span>Move selected notes</span><kbd>Arrow keys</kbd><span>Scroll time / pitches</span><kbd>Shift + wheel / wheel</kbd><span>Zoom vertically / resize lane</span><kbd>Alt + wheel</kbd><span>Zoom at cursor</span><kbd>Ctrl / Cmd + wheel</kbd><span>Set playback start / end</span><kbd>Shift / Alt + ruler click</kbd></div><p>Copy selected piano-roll notes with Ctrl/Cmd+C, click the ruler to choose a destination, then Ctrl/Cmd+V. Single-track copies paste into Write to; multi-track copies preserve their parts within the same MIDI. In any automation lane, use Select or Shift-drag to select a time range. Copy and paste tempo, global sustain, or velocity patterns at the cursor. Velocity pastes change existing notes in checked tracks. Pedal and tempo pastes replace the chosen interval and restore the previous value after it. The editor clipboard is available within this open tab, including across MIDI imports.</p><p>With Draw, drag an empty space to set the note length. Existing notes can still be moved. In automation, Draw paints values and Line creates a straight ramp. Velocity edits affect selected notes when there is a selection, otherwise all notes in the checked tracks. Sustain is shared by the entire score, regardless of selected tracks. Imported pedal holds are combined, and MIDI exports include sustain on every used channel. Pedal and tempo changes use normal MIDI events. Beat inputs use quarter-note beats, starting at 1. Check multiple tracks to edit them together, and choose Write to for new notes. Drag the dividers to resize panels. Alt + scroll zooms pitches over the piano roll and resizes the automation panel over its lane. Use View or the corner fullscreen buttons to expand a panel; Escape restores the split view.</p><p>Place yamaha.sf2 beside index.html to load it automatically on first playback or keyboard audition. Serve the folder over localhost or HTTPS; browsers usually block automatic access to neighboring files when opening HTML directly. In Options → Soundfont, you can also select any .sf2 or .sf3 file manually. MIDI instruments follows each channel’s program and bank changes; choosing a preset uses it for all channels. You can also drop a soundfont onto the editor or return to the built-in synth.</p><p class="muted">The chosen soundfont and preview instrument stay separate from the MIDI file. Exports retain the original instrument and other MIDI events. Standard MIDI format 0 and 1 with musical tick timing are supported.</p></dialog>
 <script>
 (function(root){
   'use strict';
@@ -357,6 +359,7 @@
   let editTracks=new Set([0]),trackAnchor=0,pane='split';
   const app=$('app');
   const layout={top:true,left:true,right:(window.innerWidth||1440)>=1100,leftWidth:(window.innerWidth||1440)<620?116:212,rightWidth:210,laneHeight:134};
+  let clipboard=null,automationSelection=null,clipboardSurface='notes',documentEpoch=0;
   let selected=new Set(),pixelsPerBeat=56,rowHeight=16,highPitch=76,scrollTick=0;
   let snapBeats=.25,currentTick=0,rangeStart=0,rangeEnd=doc.ppq*16,loop=false;
   let gesture=null,dirty=true,indexDirty=true,indices=[],byId=new Map(),tempo=M.tempoMap(doc);
@@ -384,7 +387,7 @@
     to.push(JSON.stringify(doc));doc=JSON.parse(from.pop());historyBytes=undo.reduce((n,s)=>n+s.length,0);
     selected.clear();activeTrack=Math.min(activeTrack,doc.tracks.length-1);editTracks=new Set([...editTracks].filter(i=>doc.tracks[i]));if(!editTracks.size)editTracks.add(activeTrack);modified=true;refreshAll();toast(isRedo?'Redo':'Undo');
   }
-  function changed(){indexDirty=true;dirty=true;tempo=M.tempoMap(doc);updateSelection();updateDocument();}
+  function changed(){syncPedalChannels();indexDirty=true;dirty=true;tempo=M.tempoMap(doc);updateSelection();updateDocument();}
   function updateDocument(){
     $('noteCount').textContent=doc.tracks.reduce((n,t)=>n+t.notes.length,0).toLocaleString()+' notes';
     $('fileTag').textContent=modified?'EDITED':fileName==='Evening sketch.mid'?'DEMO':'MIDI';
@@ -441,13 +444,13 @@
     }else $('selectionDetails').textContent='Shift-click notes or drag a box with the Select tool.';
     $('rangeHint').textContent=notes.length?'Selected notes in range':editTracks.size+' checked track'+(editTracks.size===1?'':'s')+' · all notes in range';dirty=true;
   }
-  function setTool(value){tool=value;document.querySelectorAll('[data-tool]').forEach(b=>{const a=b.dataset.tool===value;b.classList.toggle('active',a);b.setAttribute('aria-pressed',a);});$('roll').style.cursor=value==='draw'?'crosshair':value==='erase'?'cell':'default';}
+  function setTool(value){clipboardSurface='notes';tool=value;document.querySelectorAll('[data-tool]').forEach(b=>{const a=b.dataset.tool===value;b.classList.toggle('active',a);b.setAttribute('aria-pressed',a);});$('roll').style.cursor=value==='draw'?'crosshair':value==='erase'?'cell':'default';}
   function setLane(value){
-    lane=value;document.querySelectorAll('[data-lane]').forEach(b=>{const a=b.dataset.lane===value;b.classList.toggle('active',a);b.setAttribute('aria-selected',a);});
+    clipboardSurface='automation';if(lane!==value)automationSelection=null;lane=value;document.querySelectorAll('[data-lane]').forEach(b=>{const a=b.dataset.lane===value;b.classList.toggle('active',a);b.setAttribute('aria-selected',a);});
     $('velocityRange').hidden=value!=='velocity';$('otherLaneHelp').hidden=value==='velocity';$('tempoScale').hidden=value!=='tempo';
-    $('laneHelp').textContent=value==='pedal'?'Draw holds the pedal across checked tracks. Right-click a point to delete it.':'Tempo applies to the whole file. Draw points or a line ramp.';if(pane==='automation')$('focusView').value=value;dirty=true;
+    $('laneHelp').textContent=value==='pedal'?'Sustain applies to the entire score. Draw a hold; right-click a point to delete it.':'Tempo applies to the whole file. Draw points or a line ramp.';if(pane==='automation')$('focusView').value=value;dirty=true;
   }
-  function setAuto(value){autoTool=value;document.querySelectorAll('[data-auto]').forEach(b=>{const a=b.dataset.auto===value;b.classList.toggle('active',a);b.setAttribute('aria-pressed',a);});}
+  function setAuto(value){clipboardSurface='automation';autoTool=value;document.querySelectorAll('[data-auto]').forEach(b=>{const a=b.dataset.auto===value;b.classList.toggle('active',a);b.setAttribute('aria-pressed',a);});}
   document.querySelectorAll('[data-tool]').forEach(b=>b.addEventListener('click',()=>setTool(b.dataset.tool)));
   document.querySelectorAll('[data-lane]').forEach(b=>b.addEventListener('click',()=>setLane(b.dataset.lane)));
   document.querySelectorAll('[data-auto]').forEach(b=>b.addEventListener('click',()=>setAuto(b.dataset.auto)));
@@ -589,8 +592,22 @@
   function laneLimits(){if(lane==='tempo')return [Number($('tempoMin').value)||40,Number($('tempoMax').value)||200];return [0,127];}
   const laneY=value=>{const [min,max]=laneLimits();return 12+(1-clamp((value-min)/(max-min),0,1))*(sizes.lane.h-24);};
   function laneValue(y){const [min,max]=laneLimits();return Math.round(clamp(max-(y-12)/(sizes.lane.h-24)*(max-min),min,max));}
-  function pedalTargets(){return editableTrackIds().map(track=>{const t=doc.tracks[track],channels=new Set([t.channel]);for(const n of t.notes)channels.add(n.channel);for(const p of t.pedal)channels.add(p.channel);if(track===activeTrack)channels.add(Number($('channelSelect').value));return {track,channels:[...channels]};});}
-  function laneSeries(){if(lane==='tempo')return [{track:activeTrack,points:doc.tempos}];return pedalTargets().flatMap(({track,channels})=>channels.map(channel=>({track,points:doc.tracks[track].pedal.filter(p=>p.channel===channel)})));}
+  function pedalTargets(){return doc.tracks.map((_,track)=>{const t=doc.tracks[track],channels=new Set([t.channel]);for(const n of t.notes)channels.add(n.channel);for(const p of t.pedal)channels.add(p.channel);if(track===activeTrack)channels.add(Number($('channelSelect').value));return {track,channels:[...channels]};});}
+  function scorePedalPoints(){const t=doc.tracks[0];return t?t.pedal.filter(p=>p.channel===t.channel):[];}
+  function syncPedalChannels(){
+    const points=scorePedalPoints();if(!points.length)return;
+    for(const {track,channels} of pedalTargets()){
+      const t=doc.tracks[track],existing=new Set(t.pedal.map(p=>p.channel));
+      for(const channel of channels)if(!existing.has(channel))for(const p of points)t.pedal.push({id:M.id(),tick:p.tick,value:p.value,channel});
+    }
+  }
+  function globalizePedal(){
+    // Merge imported channel holds into one score pedal; overlapping holds stay down.
+    const events=doc.tracks.flatMap(t=>t.pedal).sort((a,b)=>a.tick-b.tick),values=new Array(16).fill(0),points=[];
+    for(let i=0;i<events.length;){const tick=events[i].tick;while(i<events.length&&events[i].tick===tick){const p=events[i++];values[p.channel]=p.value;}const value=Math.max(...values);if(!points.length||points.at(-1).value!==value)points.push({tick,value});}
+    for(const t of doc.tracks){const channels=new Set([t.channel,...t.notes.map(n=>n.channel),...t.pedal.map(p=>p.channel)]);t.pedal=[...channels].flatMap(channel=>points.map(p=>({id:M.id(),...p,channel})));}
+  }
+  function laneSeries(){return [{track:0,points:lane==='tempo'?doc.tempos:scorePedalPoints()}];}
   function lanePoints(){return lane==='tempo'?doc.tempos:laneSeries().flatMap(s=>s.points.map(p=>({...p,track:s.track})));}
   function drawLane(c){
     const ctx=context('lane'),labels=context('laneLabels'),w=sizes.lane.w,h=sizes.lane.h;
@@ -604,7 +621,7 @@
       ctx.globalAlpha=1;
     }else{
       for(const series of laneSeries()){
-      const seriesColor=lane==='tempo'?col:color(series.track),points=[...series.points].sort((a,b)=>a.tick-b.tick),key=lane==='tempo'?'bpm':'value';let value=lane==='tempo'?120:0;
+      const seriesColor=c.accent,points=[...series.points].sort((a,b)=>a.tick-b.tick),key=lane==='tempo'?'bpm':'value';let value=lane==='tempo'?120:0;
       for(const p of points)if(p.tick<=scrollTick)value=p[key];else break;
       ctx.beginPath();ctx.moveTo(0,h-12);ctx.lineTo(0,laneY(value));
       for(const p of points){if(p.tick<scrollTick)continue;if(p.tick>viewEnd())break;const x=px(p.tick);ctx.lineTo(x,laneY(value));value=p[key];ctx.lineTo(x,laneY(value));}ctx.lineTo(w,laneY(value));ctx.lineTo(w,h-12);ctx.closePath();ctx.fillStyle=seriesColor+'18';ctx.fill();
@@ -614,12 +631,13 @@
       }
     }
     if(gesture?.type==='automation'&&autoTool==='line'){const g=gesture;ctx.setLineDash([4,3]);ctx.strokeStyle=c.text;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(px(g.startTick),laneY(g.startValue));ctx.lineTo(px(g.lastTick),laneY(g.lastValue));ctx.stroke();ctx.setLineDash([]);}
+    if(automationSelection?.lane===lane){const a=px(automationSelection.start),b=px(automationSelection.end);ctx.fillStyle=c.accent+'25';ctx.fillRect(a,0,b-a,h);ctx.strokeStyle=c.accent;ctx.lineWidth=1;ctx.strokeRect(a+.5,.5,b-a,h-1);}
     playhead(ctx,h,c);
   }
   function pointerEnd(e,c){try{c.releasePointerCapture(e.pointerId);}catch{}gesture=null;changed();renderTracks();}
   $('roll').addEventListener('contextmenu',e=>e.preventDefault());
   $('roll').addEventListener('pointerdown',e=>{
-    if(gesture)return;$('roll').focus();const p=coordinates(e,$('roll')),hit=hitNote(p),add=e.shiftKey||e.ctrlKey||e.metaKey;
+    if(gesture)return;clipboardSurface='notes';$('roll').focus();const p=coordinates(e,$('roll')),hit=hitNote(p),add=e.shiftKey||e.ctrlKey||e.metaKey;
     if(e.button===2||tool==='erase'){
       if(hit){saveHistory();doc.tracks[hit.track].notes=doc.tracks[hit.track].notes.filter(n=>n.id!==hit.note.id);selected.delete(hit.note.id);changed();}
       if(e.button===0&&tool==='erase'){gesture={type:'erase',saved:!!hit};$('roll').setPointerCapture(e.pointerId);}return;
@@ -695,7 +713,9 @@
   }
   $('lane').addEventListener('contextmenu',e=>e.preventDefault());
   $('lane').addEventListener('pointerdown',e=>{
-    if(gesture)return;const p=coordinates(e,$('lane')),tick=snapped(p.tick),value=laneValue(p.y);
+    if(gesture)return;clipboardSurface='automation';$('lane').focus();const p=coordinates(e,$('lane')),tick=snapped(p.tick),value=laneValue(p.y);
+    if(e.button===0&&(autoTool==='select'||e.shiftKey)){automationSelection={lane,start:tick,end:tick+minDuration()};gesture={type:'automationSelect',startTick:tick};$('lane').setPointerCapture(e.pointerId);dirty=true;return;}
+    automationSelection=null;dirty=true;
     if(e.button===2){
       if(lane==='velocity')return;const key=lane==='tempo'?'bpm':'value';let target=null,dist=11;for(const point of lanePoints()){const d=Math.hypot(px(point.tick)-p.x,laneY(point[key])-p.y);if(d<dist){target=point;dist=d;}}
       if(target){saveHistory();if(lane==='tempo'){doc.tempos=doc.tempos.filter(p=>p!==target);if(!doc.tempos.length||doc.tempos[0].tick!==0)doc.tempos.unshift({tick:0,bpm:120});}else removePointRange(target.tick,target.tick);changed();}return;
@@ -703,8 +723,8 @@
     if(e.button!==0)return;saveHistory();const targets=lane==='pedal'?pedalTargets():[];gesture={type:'automation',startTick:tick,startValue:value,lastTick:tick,lastValue:value,previousTick:tick,previousValue:value,baseBpm:doc.tempos[0]?.bpm||120,originalPoints:copy(doc.tempos),targets,originalPedal:new Map(targets.map(({track})=>[track,copy(doc.tracks[track].pedal)])),originalVelocities:new Map(automationTarget().map(n=>[n.id,n.velocity]))};
     applyAutomation(gesture,tick,value);$('lane').setPointerCapture(e.pointerId);
   });
-  $('lane').addEventListener('pointermove',e=>{const p=coordinates(e,$('lane'));if(gesture?.type==='automation'){applyAutomation(gesture,snapped(p.tick),laneValue(p.y));}else $('lane').title=lane==='velocity'?'Velocity '+clamp(laneValue(p.y),1,127):lane==='pedal'?(laneValue(p.y)>=64?'Pedal held':'Pedal released'):laneValue(p.y)+' BPM';});
-  for(const event of ['pointerup','pointercancel'])$('lane').addEventListener(event,e=>{if(gesture?.type==='automation')pointerEnd(e,$('lane'));});
+  $('lane').addEventListener('pointermove',e=>{const p=coordinates(e,$('lane'));if(gesture?.type==='automationSelect'){const tick=snapped(p.tick);automationSelection={lane,start:Math.min(tick,gesture.startTick),end:Math.max(tick,gesture.startTick)+ (tick===gesture.startTick?minDuration():0)};dirty=true;}else if(gesture?.type==='automation'){applyAutomation(gesture,snapped(p.tick),laneValue(p.y));}else $('lane').title=lane==='velocity'?'Velocity '+clamp(laneValue(p.y),1,127):lane==='pedal'?(laneValue(p.y)>=64?'Pedal held':'Pedal released'):laneValue(p.y)+' BPM';});
+  for(const event of ['pointerup','pointercancel'])$('lane').addEventListener(event,e=>{if(gesture?.type==='automationSelect'){try{$('lane').releasePointerCapture(e.pointerId);}catch{}gesture=null;dirty=true;toast('Automation range selected · Ctrl/Cmd+C to copy.');}else if(gesture?.type==='automation')pointerEnd(e,$('lane'));});
   function changeRangeVelocity(direction){
     const from=(Number($('rangeFrom').value)-1)*doc.ppq,to=(Number($('rangeTo').value)-1)*doc.ppq,amount=Number($('velocityDelta').value);
     if(!Number.isFinite(from)||!Number.isFinite(to)||to<=from||from<0||!Number.isFinite(amount)||amount<1){toast('Enter a valid beat range and a positive amount.');return;}
@@ -712,7 +732,7 @@
   }
   $('addVelocity').addEventListener('click',()=>changeRangeVelocity(1));$('subtractVelocity').addEventListener('click',()=>changeRangeVelocity(-1));
   $('selectedVelocity').addEventListener('change',()=>{const value=Number($('selectedVelocity').value);if(!Number.isFinite(value)||value<1||value>127){updateSelection();return;}saveHistory();for(const n of selectedEditNotes())n.velocity=Math.round(value);changed();});
-  $('clearLane').addEventListener('click',()=>{saveHistory();if(lane==='tempo')doc.tempos=[{tick:0,bpm:doc.tempos[0]?.bpm||120}];else removePointRange(0,Infinity);changed();toast(lane==='tempo'?'Tempo reset to a constant.':'Pedal automation cleared for checked tracks.');});
+  $('clearLane').addEventListener('click',()=>{saveHistory();if(lane==='tempo')doc.tempos=[{tick:0,bpm:doc.tempos[0]?.bpm||120}];else removePointRange(0,Infinity);changed();toast(lane==='tempo'?'Tempo reset to a constant.':'Pedal automation cleared for the entire score.');});
   for(const id of ['tempoMin','tempoMax'])$(id).addEventListener('change',()=>{let min=clamp(Number($('tempoMin').value)||40,10,599),max=clamp(Number($('tempoMax').value)||200,min+1,600);$('tempoMin').value=min;$('tempoMax').value=max;dirty=true;});
   $('baseTempo').addEventListener('change',()=>{const bpm=clamp(Number($('baseTempo').value)||120,10,600);saveHistory();const p=doc.tempos.find(p=>p.tick===0);if(p)p.bpm=bpm;else doc.tempos.unshift({tick:0,bpm});changed();});
   $('snap').addEventListener('change',()=>{snapBeats=Number($('snap').value);dirty=true;});
@@ -764,7 +784,7 @@
       const midiOption=document.createElement('option');midiOption.value='midi';midiOption.textContent='MIDI instruments';$('soundfontPreset').append(midiOption);
       presets.forEach((p,i)=>{const option=document.createElement('option');option.value=String(i);option.textContent=p.name+' · '+(p.isDrum?'Drums':'Bank '+p.bankMSB+(p.bankLSB?'/'+p.bankLSB:''))+' · '+(p.program+1);$('soundfontPreset').append(option);});
       $('soundfontPreset').value='midi';defaultSoundfontError='';toast('Loaded '+file.name+' for playback and audition.');
-    }catch(e){if(automatic)defaultSoundfontError='yamaha.sf2 unavailable · using built-in synth. Serve this folder on localhost, or select the file above.';toast(automatic?defaultSoundfontError:e.message||'Could not load this soundfont.');}
+    }catch(e){if(automatic)defaultSoundfontError='yamaha.sf2 unavailable: using built-in synth. Serve this folder on localhost, or select the file above.';toast(automatic?defaultSoundfontError:e.message||'Could not load this soundfont.');}
     finally{soundfontLoading=false;soundfontUI();}
   }
   async function loadDefaultSoundfont(){
@@ -774,7 +794,7 @@
       const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),30000);
       try{
         const response=await fetch(new URL('./yamaha.sf2',document.baseURI),{signal:controller.signal});
-        if(!response.ok)throw Error('yamaha.sf2 could not be found beside index.html.');
+        if(!response.ok)throw Error('Soundfont could not load :(');
         if(Number(response.headers.get('content-length'))>512*1024*1024)throw Error('Soundfont exceeds 512 MB.');
         const blob=await response.blob();
         return {name:'yamaha.sf2',size:blob.size,arrayBuffer:()=>blob.arrayBuffer()};
@@ -831,17 +851,73 @@
   $('playBtn').addEventListener('click',()=>void play());$('stopBtn').addEventListener('click',stop);$('rewindBtn').addEventListener('click',stop);
   $('volume').addEventListener('input',()=>{if(master)master.gain.setTargetAtTime(Number($('volume').value)/100*.55,audio.currentTime,.02);});
   $('undoBtn').addEventListener('click',()=>historyStep(false));$('redoBtn').addEventListener('click',()=>historyStep(true));
+  function copySelection(){
+    if(gesture)return;
+    if(clipboardSurface==='notes'){
+      const notes=[];for(const track of editableTrackIds())for(const n of doc.tracks[track].notes)if(selected.has(n.id))notes.push({...copy(n),track});
+      if(!notes.length){toast('Select notes in the piano roll first.');return;}
+      let start=Infinity;for(const n of notes)start=Math.min(start,n.tick);
+      clipboard={type:'notes',ppq:doc.ppq,epoch:documentEpoch,notes:notes.map(n=>({...n,tick:n.tick-start}))};
+      toast('Copied '+notes.length+' notes · paste at the playback cursor.');return;
+    }
+    let range=automationSelection;
+    if(!range&&lane==='velocity'&&selected.size){const ns=selectedEditNotes();let start=Infinity,end=0;for(const n of ns){start=Math.min(start,n.tick);end=Math.max(end,n.tick+n.duration);}if(ns.length)range={lane,start,end};}
+    if(!range||range.lane!==lane){toast('Choose automation Select, then drag a time range to copy.');return;}
+    const {start,end}=range;
+    if(lane==='velocity'){
+      const values=[];for(const track of editableTrackIds())for(const n of doc.tracks[track].notes)if(n.tick>=start&&n.tick<end&&(automationSelection||!selected.size||selected.has(n.id)))values.push({tick:n.tick-start,pitch:n.pitch,value:n.velocity,track});
+      if(!values.length){toast('No note velocities in this range.');return;}
+      clipboard={type:lane,ppq:doc.ppq,length:end-start,values};
+    }else{
+      const points=lane==='tempo'?doc.tempos:scorePedalPoints(),key=lane==='tempo'?'bpm':'value';let initial=lane==='tempo'?120:0;
+      for(const p of [...points].sort((a,b)=>a.tick-b.tick))if(p.tick<=start)initial=p[key];
+      clipboard={type:lane,ppq:doc.ppq,length:end-start,points:[{tick:0,value:initial},...points.filter(p=>p.tick>start&&p.tick<end).map(p=>({tick:p.tick-start,value:p[key]}))]};
+    }
+    toast('Copied '+lane+' range · click the ruler, then paste.');
+  }
+  function pasteSelection(){
+    if(gesture)return;if(!clipboard){toast('Copy notes or an automation range first.');return;}
+    if(playing)pause();const dest=snapped(currentTick),scale=doc.ppq/clipboard.ppq;
+    if(clipboard.type==='notes'){
+      saveHistory();const tracks=[...new Set(clipboard.notes.map(n=>n.track))].sort((a,b)=>a-b),base=tracks[0],destination=activeTrack,created=new Set();selected.clear();
+      for(const source of clipboard.notes){
+        const track=tracks.length===1?destination:clipboard.epoch===documentEpoch?source.track:destination+source.track-base;
+        while(doc.tracks.length<=track)doc.tracks.push({name:'Pasted part '+(doc.tracks.length+1),channel:source.channel,notes:[],pedal:[],events:[],endTick:0});
+        const {track:ignored,...data}=source,n={...data,id:M.id(),tick:dest+Math.round(source.tick*scale),duration:Math.max(1,Math.round(source.duration*scale))};
+        doc.tracks[track].notes.push(n);selected.add(n.id);created.add(track);rangeEnd=Math.max(rangeEnd,n.tick+n.duration);
+      }
+      editTracks=new Set(created);activeTrack=Math.min(...created);clipboardSurface='notes';automationSelection=null;changed();renderTracks();syncRange();toast('Pasted '+selected.size+' notes.');return;
+    }
+    const end=dest+Math.max(1,Math.round(clipboard.length*scale));
+    if(clipboard.type==='velocity'){
+      const targets=editableNotes().filter(n=>n.tick>=dest&&n.tick<end);if(!targets.length){toast('Paste velocity onto a range containing notes in the checked tracks.');return;}
+      saveHistory();const values=[...clipboard.values].sort((a,b)=>a.tick-b.tick),sourceTracks=[...new Set(values.map(p=>p.track))].sort((a,b)=>a-b),destTracks=editableTrackIds();
+      for(const track of destTracks){const pattern=values.filter(p=>p.track===(sourceTracks.length===1?sourceTracks[0]:sourceTracks[destTracks.indexOf(track)%sourceTracks.length]));
+        const byPitch=new Map();for(const p of pattern){if(!byPitch.has(p.pitch))byPitch.set(p.pitch,[]);byPitch.get(p.pitch).push(p);}
+        for(const n of doc.tracks[track].notes)if(n.tick>=dest&&n.tick<end){const rel=(n.tick-dest)/scale,points=byPitch.get(n.pitch)||pattern;let low=0,high=points.length;while(low<high){const mid=(low+high)>>1;if(points[mid].tick<=rel)low=mid+1;else high=mid;}n.velocity=points[Math.max(0,low-1)].value;}}
+      setLane('velocity');
+    }else{
+      saveHistory();setLane(clipboard.type);const points=lane==='tempo'?doc.tempos:scorePedalPoints(),key=lane==='tempo'?'bpm':'value';let after=lane==='tempo'?120:0;
+      for(const p of [...points].sort((a,b)=>a.tick-b.tick))if(p.tick<=end)after=p[key];
+      removePointRange(dest,end);for(const p of clipboard.points)setPoint(dest+Math.round(p.tick*scale),p.value);setPoint(end,after);
+      if(lane==='tempo')doc.tempos=M.normalized(doc.tempos);
+    }
+    automationSelection={lane:clipboard.type,start:dest,end};clipboardSurface='automation';rangeEnd=Math.max(rangeEnd,end);changed();syncRange();toast('Pasted '+clipboard.type+' automation.');
+  }
+  $('copyBtn').addEventListener('click',copySelection);$('pasteBtn').addEventListener('click',pasteSelection);
   function deleteSelected(){if(!selected.size)return;saveHistory();const count=selected.size;for(const i of editableTrackIds())doc.tracks[i].notes=doc.tracks[i].notes.filter(n=>!selected.has(n.id));selected.clear();changed();renderTracks();toast('Deleted '+count+' notes.');}
   document.addEventListener('keydown',e=>{
     if(e.key==='Escape'&&pane!=='split'&&!$('helpDialog').open){e.preventDefault();void focusPanel('split');return;}
     const typing=['INPUT','SELECT','TEXTAREA'].includes(e.target.tagName);if(typing||$('helpDialog').open)return;
     const command=e.ctrlKey||e.metaKey;
     if(e.code==='Space'){e.preventDefault();void play();}else if(e.key==='Enter'){e.preventDefault();stop();}
+    else if(command&&e.key.toLowerCase()==='c'){e.preventDefault();copySelection();}
+    else if(command&&e.key.toLowerCase()==='v'){e.preventDefault();pasteSelection();}
     else if(command&&e.key.toLowerCase()==='z'){e.preventDefault();historyStep(e.shiftKey);}
     else if(command&&e.key.toLowerCase()==='y'){e.preventDefault();historyStep(true);}
-    else if(command&&e.key.toLowerCase()==='a'){e.preventDefault();selected=new Set(editableNotes().map(n=>n.id));updateSelection();}
-    else if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();deleteSelected();}
-    else if(e.key==='Escape'){selected.clear();updateSelection();}
+    else if(command&&e.key.toLowerCase()==='a'){e.preventDefault();clipboardSurface='notes';selected=new Set(editableNotes().map(n=>n.id));updateSelection();}
+    else if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();if(clipboardSurface==='automation'&&automationSelection){toast('Use Draw or right-click individual points to edit automation.');}else deleteSelected();}
+    else if(e.key==='Escape'){automationSelection=null;selected.clear();updateSelection();}
     else if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)&&selected.size){
       e.preventDefault();saveHistory();const ns=selectedEditNotes();
       if(e.key==='ArrowUp'||e.key==='ArrowDown'){const delta=(e.key==='ArrowUp'?1:-1)*(e.shiftKey?12:1);let min=127,max=0;for(const n of ns){min=Math.min(min,n.pitch);max=Math.max(max,n.pitch);}const d=clamp(delta,-min,127-max);for(const n of ns)n.pitch+=d;}
@@ -853,7 +929,7 @@
   try{const theme=localStorage.getItem('midi-pencil-theme');if(theme==='light'||theme==='dark')document.documentElement.dataset.theme=theme;}catch{}
   $('themeBtn').addEventListener('click',themeToggle);$('themeBtn').setAttribute('aria-label','Switch to '+(document.documentElement.dataset.theme==='dark'?'light':'dark')+' mode');
   function loadDocument(newDoc,name){
-    stop();doc=newDoc;fileName=name;modified=false;activeTrack=Math.max(0,doc.tracks.findIndex(t=>t.notes.length));editTracks=new Set([activeTrack]);trackAnchor=activeTrack;selected.clear();undo=[];redo=[];historyBytes=0;scrollTick=0;currentTick=0;rangeStart=0;rangeEnd=M.endTick(doc);
+    stop();documentEpoch++;automationSelection=null;clipboardSurface='notes';doc=newDoc;globalizePedal();fileName=name;modified=false;activeTrack=Math.max(0,doc.tracks.findIndex(t=>t.notes.length));editTracks=new Set([activeTrack]);trackAnchor=activeTrack;selected.clear();undo=[];redo=[];historyBytes=0;scrollTick=0;currentTick=0;rangeStart=0;rangeEnd=M.endTick(doc);
     $('rangeFrom').value=1;$('rangeTo').value=Number((rangeEnd/doc.ppq+1).toFixed(4));syncRange();refreshAll();fit();
     let minBpm=80,maxBpm=160;for(const p of doc.tempos){minBpm=Math.min(minBpm,p.bpm);maxBpm=Math.max(maxBpm,p.bpm);}$('tempoMin').value=clamp(Math.floor(minBpm/20)*20,10,580);$('tempoMax').value=clamp(Math.ceil(maxBpm/20)*20,Number($('tempoMin').value)+20,600);
   }
@@ -871,9 +947,9 @@
     if(playing&&audio){currentTick=clamp(tempo.secondsToTick(Math.max(playStartSeconds,playClock())),rangeStart,rangeEnd);updatePosition();if(px(currentTick)>timelineWidth()-40){scrollTick=Math.max(0,currentTick-doc.ppq*2);updateNav();}dirty=true;}
     if(dirty)draw();requestAnimationFrame(frame);
   }
-  refreshAll();applyLayout();updatePosition();soundfontUI();requestAnimationFrame(frame);
+  globalizePedal();refreshAll();applyLayout();updatePosition();soundfontUI();requestAnimationFrame(frame);
   const editorApi={
-    getState:()=>({fileName,ppq:doc.ppq,tracks:doc.tracks.map((t,i)=>({index:i,name:t.name,notes:t.notes.length,channel:t.channel+1,editable:editTracks.has(i)})),activeTrack,editableTracks:editableTrackIds(),selectedNotes:[...selected],tempos:copy(doc.tempos),playback:{playing,startBeat:rangeStart/doc.ppq+1,endBeat:rangeEnd/doc.ppq+1,currentBeat:currentTick/doc.ppq+1},soundfont:{name:soundfont?.name||null,presets:soundfont?.presets.length||0,instrument:$('soundfontPreset').value,loading:soundfontLoading},theme:document.documentElement.dataset.theme,view:{pane,lane,rowHeight,highPitch,scrollTick,pixelsPerBeat,...layout}}),
+    getState:()=>({fileName,ppq:doc.ppq,tracks:doc.tracks.map((t,i)=>({index:i,name:t.name,notes:t.notes.length,channel:t.channel+1,editable:editTracks.has(i)})),activeTrack,editableTracks:editableTrackIds(),selectedNotes:[...selected],tempos:copy(doc.tempos),playback:{playing,startBeat:rangeStart/doc.ppq+1,endBeat:rangeEnd/doc.ppq+1,currentBeat:currentTick/doc.ppq+1},clipboard:{type:clipboard?.type||null,automationSelection:automationSelection?{...automationSelection}:null},soundfont:{name:soundfont?.name||null,presets:soundfont?.presets.length||0,instrument:$('soundfontPreset').value,loading:soundfontLoading},theme:document.documentElement.dataset.theme,view:{pane,lane,rowHeight,highPitch,scrollTick,pixelsPerBeat,...layout}}),
     addNotes(notes){if(!Array.isArray(notes)||notes.length>1000)throw Error('Provide up to 1000 notes.');for(const n of notes)if(!Number.isInteger(n.pitch)||n.pitch<0||n.pitch>127||!Number.isFinite(n.beat)||n.beat<1||!Number.isFinite(n.duration)||n.duration<=0||!Number.isInteger(n.velocity)||n.velocity<1||n.velocity>127)throw Error('Invalid pitch, beat, duration, or velocity.');saveHistory();for(const n of notes)doc.tracks[activeTrack].notes.push({id:M.id(),pitch:n.pitch,tick:Math.round((n.beat-1)*doc.ppq),duration:Math.max(1,Math.round(n.duration*doc.ppq)),velocity:n.velocity,channel:Number($('channelSelect').value),releaseVelocity:0});changed();renderTracks();return {added:notes.length};},
     exportBytes:()=>M.serialize(doc)
   };
